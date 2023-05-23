@@ -81,10 +81,13 @@ def main(argv=[]):
 {Colors.YELLOW}Your branch name does not follow a proper formatting.
 
 Branch name start with one of the below branch types, followed by a slash,
-followed by one of the below issue tpes, followed by slash and optional description:{Colors.RESTORE}
+followed by one of the below issue tpes, followed by slash and description:{Colors.RESTORE}
 
-Branch types: {" ".join(branch_types_list(DEFAULT_BRANCH_TYPES))}
-Issue types: {" ".join(branch_types_list(DEFAULT_ISSUE_PREFIXES))}
+Branch types: {" ".join(branch_types_list())}
+Issue types: {" ".join(issue_prefixes_list())}
+
+{Colors.YELLOW}To rename existing local branch you can use the following command:{Colors.RESTORE}
+git branch -m <oldname> <newname>
 
 {Colors.YELLOW}Good examples:{Colors.RESTORE}
 feature/issue-47/code-styling-improvements
@@ -127,7 +130,7 @@ def regex_description(description_length):
     """
     Regex string for forward slash and up to 30 characters in length that contain no spaces
     """
-    return r"(?:/([^/\s]{1,%d}))?$" % description_length
+    return r"([A-Za-z0-9\-]){1,%d}$" % description_length
 
 
 def get_current_branch():
@@ -186,7 +189,7 @@ def is_branch_name_valid(input, branch_types=[], issue_prefixes=[], description_
     branch_types = branch_types_list(branch_types)
     issue_prefixes = issue_prefixes_list(issue_prefixes)
 
-    pattern = f"^({regex_branch_types(branch_types)}){regex_delimiter()}({regex_issue_prefixes(issue_prefixes)}){regex_issue_numbers()}{regex_description(description_length)}"
+    pattern = f"^({regex_branch_types(branch_types)}){regex_delimiter()}({regex_issue_prefixes(issue_prefixes)}){regex_issue_numbers()}{regex_delimiter()}{regex_description(description_length)}"
     regex = re.compile(pattern, re.DOTALL)
 
     return bool(regex.match(input))

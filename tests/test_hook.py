@@ -20,28 +20,33 @@ def branch_with_description():
 
 
 @pytest.fixture(autouse=True)
+def branch_without_description():
+    return "feature/issue-1234"
+
+
+@pytest.fixture(autouse=True)
 def bugfix_branch():
-    return "bugfix/issue-890"
+    return "bugfix/issue-890/this-is-description"
 
 
 @pytest.fixture(autouse=True)
 def custom_branch_type():
-    return "custom/issue-1234"
+    return "custom/issue-1234/this-is-description"
 
 
 @pytest.fixture(autouse=True)
 def custom_issue_prefix():
-    return "feature/dev-1234"
+    return "feature/dev-1234/this-is-description"
 
 
 @pytest.fixture(autouse=True)
 def feature_branch():
-    return "feature/issue-150"
+    return "feature/issue-150/this-is-description"
 
 
 @pytest.fixture(autouse=True)
 def hotfix_branch():
-    return "hotfix/issue-1111"
+    return "hotfix/issue-1111/this-is-description"
 
 
 @pytest.fixture(autouse=True)
@@ -97,25 +102,25 @@ class TestHooks:
 
     @pytest.mark.parametrize("branch_type", hook.DEFAULT_BRANCH_TYPES)
     def test_given_each_type_from_default_types_when_calling_hook_it_will_return_true(self, branch_type):
-        input = f"{branch_type}/issue-1234"
+        input = f"{branch_type}/issue-1234/some-description"
 
         assert hook.is_branch_name_valid(input)
 
     @pytest.mark.parametrize("issue_prefix", hook.DEFAULT_ISSUE_PREFIXES)
     def test_given_each_prefix_from_default_issue_prefixes_when_calling_hook_it_will_return_true(self, issue_prefix):
-        input = f"feature/{issue_prefix}-1234"
+        input = f"feature/{issue_prefix}-1234/some-description"
 
         assert hook.is_branch_name_valid(input)
 
     @pytest.mark.parametrize("custom_branch_type", CUSTOM_BRANCH_TYPES)
     def test_given_each_type_from_custom_branch_types_when_calling_hook_it_will_return_true(self, custom_branch_type):
-        input = f"{custom_branch_type}/issue-1234"
+        input = f"{custom_branch_type}/issue-1234/some-description"
 
         assert hook.is_branch_name_valid(input, CUSTOM_BRANCH_TYPES)
 
     @pytest.mark.parametrize("custom_issue_prefix", CUSTOM_ISSUE_PREFIXES)
     def test_given_each_prefix_from_custom_issue_prefixes_when_calling_hook_it_will_return_true(self, custom_issue_prefix):
-        input = f"feature/{custom_issue_prefix}-1234"
+        input = f"feature/{custom_issue_prefix}-1234/some-description"
 
         assert hook.is_branch_name_valid(input, [], CUSTOM_ISSUE_PREFIXES)
 
@@ -129,6 +134,11 @@ class TestHooks:
         self, branch_with_description
     ):
         assert not hook.is_branch_name_valid(branch_with_description, [], [], 5)
+
+    def test_given_branch_name_without_description_that_exceeds_max_length_when_calling_main_it_will_return_result_fail(
+        self, branch_without_description
+    ):
+        assert not hook.is_branch_name_valid(branch_without_description)
 
     def test_given_bugfix_branch_name_when_calling_main_it_will_return_result_success(self, bugfix_branch):
         assert hook.is_branch_name_valid(bugfix_branch)
