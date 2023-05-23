@@ -8,7 +8,7 @@ Add the following entry into your `.pre-commit-config.yaml` file:
 repos:
   # - repo: ...
 
-  - repo: https://github.com/igorhrcek/pre-commit-branch-name-validation
+  - repo: https://github.com/mailergroup/pre-commit-branch-name-validation
     rev: v1.0.0
     hooks:
       - id: pre-commit-branch-validation
