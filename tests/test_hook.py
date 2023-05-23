@@ -7,6 +7,7 @@ TEST_PATH = os.path.abspath(os.path.dirname(__file__))
 
 CUSTOM_BRANCH_TYPES = ["custom", "quirk"]
 CUSTOM_ISSUE_PREFIXES = ["dev", "qa"]
+CUSTOM_NOREF = ["noref"]
 
 
 @pytest.fixture(autouse=True)
@@ -54,6 +55,11 @@ def custom_branch_type_custom_issue_prefix():
     return "quirk/qa-1234/this-is-description"
 
 
+@pytest.fixture(autouse=True)
+def branch_no_ref():
+    return "feature/noref/this-is-description"
+
+
 class TestHooks:
     def test_given_custom_branch_types_when_calling_regex_types_it_will_include_custom_types(self):
         result = hook.regex_branch_types(CUSTOM_BRANCH_TYPES)
@@ -80,6 +86,18 @@ class TestHooks:
         regex = re.compile(result)
 
         assert regex.match("-12345")
+
+    def test_given_noref_in_branch_name_when_calling_regex_delimiter_it_will_pass(self):
+        result = hook.regex_issue_noref_types_list(CUSTOM_NOREF)
+        regex = re.compile(result)
+
+        assert regex.match("noref")
+
+    def test_given_noref_in_branch_name_when_checking_if_branch_has_reference_it_will_return_true(
+        self, branch_no_ref, feature_branch
+    ):
+        assert not hook.branch_has_referrence(branch_no_ref)
+        assert hook.branch_has_referrence(feature_branch)
 
     def test_given_default_branch_types_when_calling_hook_it_will_return_only_default_branch_types(self):
         assert hook.branch_types_list() == hook.DEFAULT_BRANCH_TYPES
@@ -124,6 +142,12 @@ class TestHooks:
 
         assert hook.is_branch_name_valid(input, [], CUSTOM_ISSUE_PREFIXES)
 
+    @pytest.mark.parametrize("issue_no_reference", CUSTOM_NOREF)
+    def test_given_each_noref_from_default_noref_values_when_calling_hook_it_will_return_true(self, issue_no_reference):
+        input = f"feature/{issue_no_reference}/some-description"
+
+        assert hook.is_branch_name_valid(input)
+
     def test_given_bad_branch_name_when_calling_main_it_will_return_result_fail(self, bad_branch):
         assert not hook.is_branch_name_valid(bad_branch)
 
@@ -156,3 +180,6 @@ class TestHooks:
         self, custom_branch_type_custom_issue_prefix
     ):
         assert hook.is_branch_name_valid(custom_branch_type_custom_issue_prefix, CUSTOM_BRANCH_TYPES, CUSTOM_ISSUE_PREFIXES)
+
+    def test_given_noref_in_branch_name_when_calling_main_it_will_return_result_success(self, branch_no_ref):
+        assert hook.is_branch_name_valid(branch_no_ref)

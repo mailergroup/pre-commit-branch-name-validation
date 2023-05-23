@@ -17,6 +17,9 @@ DEFAULT_ISSUE_PREFIXES = ["issue", "sre"]
 # Define branch names that are always allowed (main, master, develop etc)
 ALWAYS_ALLOWED_BRANCH_NAMES = ["main", "master", "develop"]
 
+# Define default value for issue reference when branch does not have one
+DEFAULT_NO_REFERENCE = ["no-ref", "noref"]
+
 # Define max description length
 MAX_DESCRIPTION_LENGTH = 50
 
@@ -112,6 +115,13 @@ def regex_issue_prefixes(prefixes):
     return r"|".join(prefixes)
 
 
+def regex_issue_noref_types_list(noref=DEFAULT_NO_REFERENCE):
+    """
+    Returns a list of allowed names when branch is not based on an actual issue
+    """
+    return r"|".join(noref)
+
+
 def regex_issue_numbers():
     """
     Regex string for mathing issue numbers
@@ -147,6 +157,19 @@ def get_current_branch():
         print("Failed to retrieve current branch name:", e)
 
         return None
+
+
+def branch_has_referrence(branch):
+    """
+    Determines if issue in branch name has reference
+    """
+    elements = branch.split("/")
+
+    # Case when branch name does not contain "/"
+    if len(elements) == 1:
+        return False
+
+    return elements[1] not in DEFAULT_NO_REFERENCE
 
 
 def branch_types_list(types=[]):
@@ -189,7 +212,11 @@ def is_branch_name_valid(input, branch_types=[], issue_prefixes=[], description_
     branch_types = branch_types_list(branch_types)
     issue_prefixes = issue_prefixes_list(issue_prefixes)
 
-    pattern = f"^({regex_branch_types(branch_types)}){regex_delimiter()}({regex_issue_prefixes(issue_prefixes)}){regex_issue_numbers()}{regex_delimiter()}{regex_description(description_length)}"
+    if branch_has_referrence(input):
+        pattern = f"^({regex_branch_types(branch_types)}){regex_delimiter()}({regex_issue_prefixes(issue_prefixes)}){regex_issue_numbers()}{regex_delimiter()}{regex_description(description_length)}"
+    else:
+        pattern = f"^({regex_branch_types(branch_types)}){regex_delimiter()}({regex_issue_noref_types_list()}){regex_delimiter()}{regex_description(description_length)}"
+
     regex = re.compile(pattern, re.DOTALL)
 
     return bool(regex.match(input))
