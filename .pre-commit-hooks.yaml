@@ -1,0 +1,7 @@
+- id: pre-commit-branch-validation
+  name: Branch Name Validation
+  entry: pre-commit-branch-validation
+  language: python
+  description: Checks branch name against set rules
+  always_run: true
+  stages: [post-commit, post-checkout]
