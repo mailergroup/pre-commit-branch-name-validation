@@ -12,13 +12,13 @@ repos:
     rev: v1.0.0
     hooks:
       - id: pre-commit-branch-validation
-        stages: [pre-push, post-checkout]
+        stages: [post-commit, post-checkout]
         args: [] # optional: list of allowed branch types, issue prefixes and maximum length of branch description
 ```
 
 Install the script:
 ```
-pre-commit install --hook-type pre-push --hook-type post-checkout
+pre-commit install --hook-type post-commit --hook-type post-checkout
 ```
 
 ## Usage
