@@ -1,3 +1,6 @@
+[project]
+name = "pre_commit_branch_validation"
+
 [tool.poetry]
 name = "pre_commit_branch_validation"
 version = "1.0.0"
