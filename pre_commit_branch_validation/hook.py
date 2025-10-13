@@ -1,7 +1,7 @@
-import re
-import sys
 import argparse
+import re
 import subprocess
+import sys
 
 # Define default branch types (feaitre/..., bugfix/... etc)
 DEFAULT_BRANCH_TYPES = [
@@ -38,8 +38,10 @@ class CalledProcessError(RuntimeError):
     pass
 
 
-def main(argv=[]):
+def main(argv=None):
     # Allow additiional params to be passed in configuration
+    if argv is None:
+        argv = []
     parser = argparse.ArgumentParser(
         prog="pre-commit-branch-validation", description="Check if branch name matches defined rules."
     )
@@ -172,50 +174,68 @@ def branch_has_referrence(branch):
     return elements[1] not in DEFAULT_NO_REFERENCE
 
 
-def branch_types_list(types=[]):
+def branch_types_list(types=None):
     """
     Returns a final list of branch types that is merged from passed types and DEFAULT_BRANCH_TYPES
     """
+    if types is None:
+        types = []
     if set(types):
         return DEFAULT_BRANCH_TYPES + types
 
     return DEFAULT_BRANCH_TYPES
 
 
-def issue_prefixes_list(prefixes=[]):
+def issue_prefixes_list(prefixes=None):
     """
     Returns a final list of issue prefixes that is merged from passed types and DEFAULT_ISSUE_PREFIXES
     """
+    if prefixes is None:
+        prefixes = []
     if set(prefixes):
         return DEFAULT_ISSUE_PREFIXES + prefixes
 
     return DEFAULT_ISSUE_PREFIXES
 
 
-def always_allowed_branch_names(branch_names=[]):
+def always_allowed_branch_names(branch_names=None):
     """
     Returns a final list of always allowed branch names that is merged from passed branch names and ALWAYS_ALLOWED_BRANCH_NAMES
     """
+    if branch_names is None:
+        branch_names = []
     if set(branch_names):
         return ALWAYS_ALLOWED_BRANCH_NAMES + branch_names
 
     return ALWAYS_ALLOWED_BRANCH_NAMES
 
 
-def is_branch_name_valid(input, branch_types=[], issue_prefixes=[], description_length=MAX_DESCRIPTION_LENGTH):
+def is_branch_name_valid(input, branch_types=None, issue_prefixes=None, description_length=MAX_DESCRIPTION_LENGTH):
     """
     Checks if branch name follows set rules and guidelines.
 
     Description after issue prefix and number is optional
     """
 
+    if issue_prefixes is None:
+        issue_prefixes = []
+    if branch_types is None:
+        branch_types = []
     branch_types = branch_types_list(branch_types)
     issue_prefixes = issue_prefixes_list(issue_prefixes)
 
     if branch_has_referrence(input):
-        pattern = f"^({regex_branch_types(branch_types)}){regex_delimiter()}({regex_issue_prefixes(issue_prefixes)}){regex_issue_numbers()}{regex_delimiter()}{regex_description(description_length)}"
+        pattern = (
+            f"^({regex_branch_types(branch_types)}){regex_delimiter()}"
+            f"({regex_issue_prefixes(issue_prefixes)}){regex_issue_numbers()}"
+            f"{regex_delimiter()}{regex_description(description_length)}"
+        )
     else:
-        pattern = f"^({regex_branch_types(branch_types)}){regex_delimiter()}({regex_issue_noref_types_list()}){regex_delimiter()}{regex_description(description_length)}"
+        pattern = (
+            f"^({regex_branch_types(branch_types)}){regex_delimiter()}"
+            f"({regex_issue_noref_types_list()}){regex_delimiter()}"
+            f"{regex_description(description_length)}"
+        )
 
     regex = re.compile(pattern, re.DOTALL)
 

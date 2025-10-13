@@ -1,6 +1,8 @@
-import re
-import pytest
 import os.path
+import re
+
+import pytest
+
 import pre_commit_branch_validation.hook as hook
 
 TEST_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -105,7 +107,7 @@ class TestHooks:
     def test_given_additional_branch_types_when_calling_hook_it_will_include_custom_types(self):
         result = hook.branch_types_list(["superduper"])
 
-        assert set(["superduper", *hook.DEFAULT_BRANCH_TYPES]) == set(result)
+        assert {"superduper", *hook.DEFAULT_BRANCH_TYPES} == set(result)
 
     def test_given_default_issue_prefixes_when_calling_hook_it_will_return_only_default_prefixes(self):
         assert hook.issue_prefixes_list() == hook.DEFAULT_ISSUE_PREFIXES
@@ -113,7 +115,7 @@ class TestHooks:
     def test_given_additional_issue_prefixes_when_calling_hook_it_will_include_custom_prefixes(self):
         result = hook.issue_prefixes_list(["dupersuper"])
 
-        assert set(["dupersuper", *hook.DEFAULT_ISSUE_PREFIXES]) == set(result)
+        assert {"dupersuper", *hook.DEFAULT_ISSUE_PREFIXES} == set(result)
 
     def test_given_always_allowed_branch_names_when_calling_hook_it_will_return_only_allowed_branch_names(self):
         assert hook.always_allowed_branch_names() == hook.ALWAYS_ALLOWED_BRANCH_NAMES
